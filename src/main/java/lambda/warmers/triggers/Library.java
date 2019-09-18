@@ -13,6 +13,9 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import lambda.warmers.triggers.model.History;
 import lambda.warmers.triggers.model.Task;
 
+import java.util.Date;
+import java.util.List;
+
 public class Library {
     private DynamoDB dynamoDb;
     private String DYNAMODB_TABLE_NAME = "task";
@@ -23,6 +26,12 @@ public class Library {
         DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
         task = new Task(task.getId(), task.getTitle(), task.getDescription(), task.getAssignee());
         History history = new History("task is assigned to: " + task.getAssignee());
+        if(task.getId() != null) {
+            task = ddbMapper.load(Task.class, task.getId());
+            List<History> previousHistory = task.getHistoryList();
+            previousHistory.add(history);
+            task.setHistoryList(previousHistory);
+        }
         task.getHistoryList().add(history);
         ddbMapper.save(task);
 
