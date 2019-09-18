@@ -3,16 +3,29 @@
  */
 package lambda.warmers.triggers;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDB;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import lambda.warmers.triggers.model.History;
+import lambda.warmers.triggers.model.Task;
 
 public class Library {
-    public boolean someLibraryMethod() {
-        return true;
-    }
-    public boolean logMe(Context context) {
-        LambdaLogger logger = context.getLogger();
-        logger.log("This has been logged: " + context.toString());
-        return true;
+    private DynamoDB dynamoDb;
+    private String DYNAMODB_TABLE_NAME = "task";
+    private Regions REGION = Regions.US_WEST_2;
+
+    public Task save(Task task) {
+        final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
+        DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
+        task = new Task(task.getId(), task.getTitle(), task.getDescription(), task.getAssignee());
+        History history = new History("task is assigned to: " + task.getAssignee());
+        task.getHistoryList().add(history);
+        ddbMapper.save(task);
+
+        return task;
     }
 }
