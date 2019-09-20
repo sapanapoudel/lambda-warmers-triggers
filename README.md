@@ -8,7 +8,13 @@
 #### Approach 
 Run the application using ```./gradlew build```
 #### Documentation
-* a link to API Gateway
+* a link 
 http://taskmaster1-dev1.us-west-2.elasticbeanstalk.com/api1/v2/tasks
+
+## Lab 33 Lambda API Gateway
+* link to API:
+https://lvf7rxafk8.execute-api.us-west-2.amazonaws.com/dev/tasks
+
+
 
 

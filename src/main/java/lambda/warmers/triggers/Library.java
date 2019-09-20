@@ -11,6 +11,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.google.gson.Gson;
 import lambda.warmers.triggers.model.History;
 import lambda.warmers.triggers.model.Task;
 
@@ -53,9 +55,9 @@ public class Library {
         List<Task> tasks = ddbMapper.scan(Task.class, new DynamoDBScanExpression());
         return tasks;
     }
-    
+
     //Get task for a user
-    public List<Task> getUserTask(APIGatewayProxyRequestEvent event){
+    public APIGatewayProxyResponseEvent getUserTask(APIGatewayProxyRequestEvent event){
         StringBuilder path = new StringBuilder();
         for (Map.Entry<String,String> entry : event.getPathParameters().entrySet())
             path.append(entry.getValue());
@@ -72,7 +74,13 @@ public class Library {
         final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
         DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
         List<Task> tasks = ddbMapper.scan(Task.class, scanExpression);
-        return tasks;
+
+        APIGatewayProxyResponseEvent responseEvent = new APIGatewayProxyResponseEvent();
+
+        Gson gson = new Gson();
+        responseEvent.setBody(gson.toJson(tasks));
+
+        return responseEvent;
     }
 
 
