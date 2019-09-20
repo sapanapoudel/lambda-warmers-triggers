@@ -10,12 +10,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import lambda.warmers.triggers.model.History;
 import lambda.warmers.triggers.model.Task;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Library {
     private DynamoDB dynamoDb;
@@ -45,27 +47,22 @@ public class Library {
 
     //Get all the tasks
     public List<Task> getAllTasks(Task task) {
-        HashMap<String, AttributeValue> expressionAttributeValues =
-                new HashMap<String, AttributeValue>();
-        expressionAttributeValues.put(":val", new AttributeValue().withS("0"));
-
-       DynamoDBScanExpression scanExpression = new DynamoDBScanExpression().
-               withFilterExpression("(assignee, :v1")
-               .withExpressionAttributeValues(expressionAttributeValues);
-
 
         final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
         DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
         List<Task> tasks = ddbMapper.scan(Task.class, new DynamoDBScanExpression());
         return tasks;
     }
-
-
+    
     //Get task for a user
-    public List<Task> getUserTask(Task task){
+    public List<Task> getUserTask(APIGatewayProxyRequestEvent event){
+        StringBuilder path = new StringBuilder();
+        for (Map.Entry<String,String> entry : event.getPathParameters().entrySet())
+            path.append(entry.getValue());
+
         HashMap<String, AttributeValue> expressionAttributeValues =
                 new HashMap<String, AttributeValue>();
-        expressionAttributeValues.put(":v1", new AttributeValue().withS(task.getAssignee()));
+        expressionAttributeValues.put(":v1", new AttributeValue().withS(path.toString()));
 
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
                 .withFilterExpression("assignee = :v1")
