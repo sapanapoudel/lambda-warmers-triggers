@@ -10,15 +10,12 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import lambda.warmers.triggers.model.History;
 import lambda.warmers.triggers.model.Task;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 public class Library {
     private DynamoDB dynamoDb;
@@ -101,7 +98,6 @@ public class Library {
         t.getHistoryList().add(history);
         ddbMapper.save(t);
         return t;
-
     }
 
     //Update assignee (pass the assignee as param)
@@ -109,22 +105,23 @@ public class Library {
         final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
         DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
         Task t = ddbMapper.load(Task.class, task.getId());
-        String assignee = t.getAssignee();
+        String assignee = task.getAssignee();
         t.setAssignee(assignee);
         t.setStatus("assigned");
-        String status = task.getStatus();
-        Date date = new Date();
         History history = new History("task is assigned to: " + t.getAssignee());
         t.getHistoryList().add(history);
         ddbMapper.save(t);
         return t;
-
     }
 
     //Delete task
-    public void delete(Task task) {
+    public Task delete(Task task) {
         final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
         DynamoDBMapper ddbMapper = new DynamoDBMapper(ddb);
-
+        Task t = ddbMapper.load(Task.class, task.getId());
+        ddbMapper.delete(t);
+        return t;
     }
+
 }
+
