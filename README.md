@@ -40,5 +40,16 @@ Source: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoD
 
 https://gist.github.com/akhilvijayan05/e24f8a96817180659e4d150c394962d8
 
+#### Lab 39. Event Driven Applications
+* Link to API Gateway
+
+https://lvf7rxafk8.execute-api.us-west-2.amazonaws.com/dev
+#### Routes for API Gateway endpoint that accepts a POST containing a Phone Number in the JSON sent into it’s body
+```
+POST /tasks/{phoneNumber}
+```
+#### Test 
+![Screenshot of text message](assests/Screenshot_20190930-125307_Messages.jpg)
+
 
 
